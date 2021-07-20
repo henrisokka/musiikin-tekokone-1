@@ -53,33 +53,50 @@ def permutation_patterns(set):
 def basic_patterns(set):
     patterns = []
     for n in set:
-        patterns.append(create_pattern(base + n, set, False))
+        patterns.append(create_pattern(base + n, set))
     print(patterns)
     return patterns
 
-def downward_patterns(set):
-    patterns = []
-    for n in set:
-        patterns.append(create_pattern(base - n, set, False))
-    
-    return patterns
+
+def modify_set(seed, history):
+    next_set = seed.copy()
+    to_modify = random.randrange(len(seed))
+
+    if to_modify in history:
+        return modify_set(seed, history)
+
+    if bool(random.getrandbits(1)): modifier = 2
+    else: modifier = -2
+
+    if bool(random.getrandbits(1)):
+        modifier += 1
+
+    next_set[to_modify] += modifier
+
+    history.append(to_modify)
+    if len(history) > len(seed) / 2:
+        history = history[1:]
+
+    return next_set, history
 
 
 if __name__ == "__main__":
 
     base = 64
-    sets = [[0, 7, 4], [0, 7, 4, 5], [7, 4, 5], [7, 4, 5, 2], [4, 5, 2], [4, 5, 2, 9]]
+    sets = [[0, 7, 9, 2, 5]]
+    history = []
+    for i in range(5):
+        new_set, history = modify_set(sets[i], history)
+        sets.append(new_set)
 
-    create_tracks(len(sets) * 3)
+    create_tracks(2)
 
-    index = 0
     for set in sets:
-        add_patterns(permutation_patterns(set), index)
-        add_patterns(basic_patterns(set), index + 1)
-        add_patterns(downward_patterns(set), index + 2)
-        index += 3
+        for i in range(4):
+            add_patterns(permutation_patterns(set), 0)
+            add_patterns(basic_patterns(set), 1)
 
-    save_file(mid)
+    save_file(mid, sets)
 
 
 
